@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html>
+
+  <head>    
+    <meta charset="utf-8">
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <script src="http://d3js.org/d3.v7.js"></script>
+    <link rel="stylesheet" href="style.css">
+  </head>
+
+  <body>
+    <div class = "canvas_1">
+      <div class="title"> Video Game Sales </div>
+      <div class="canvas_1_body">
+        <div class="textDiv">
+          <div class="text_Classic">
+            A video game or computer game is an electronic game that involves interaction with a user interface
+            or input device – such as a joystick, controller, keyboard, or motion sensing device – to generate visual feedback.
+            Depending on the platform, video games can be subcategorized into computer games and 
+            console games. In recent years, however, the emergence of social networks, smartphones and tablets introduced new categories 
+            such as mobile and social games. Video games have come a long way since the first games emerged in the 1970s. Today’s video games offer 
+            photorealistic graphics and simulate reality to a degree which is astonishing in many cases. With this said, we will take a look at
+            global game sales through the years and see which platforms and publishers dominated the industry.  
+          </div>
+        </div>
+        <div class="imageDiv">
+          <a href="https://techraptor.net/gaming/features/best-games-2016">
+            <img src="images/bg_2016.jpg" style="height: 80%;width: 80%;" />
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="canvas_2">
+      <div id="pieChart"></div>
+
+      <div class="bars">
+        <div id="barChart"></div>  
+        <div id="barChart2"></div>
+        <div class="custom_select">
+          <select id="sales" onchange="getYear()">
+            <option value="0" selected>Total</option>
+            <option value="1981">1981</option>
+            <option value="1982">1982</option>
+            <option value="1983">1983</option>
+            <option value="1984">1984</option>
+            <option value="1985">1985</option>
+            <option value="1986">1986</option>
+            <option value="1987">1987</option>
+            <option value="1988">1988</option>
+            <option value="1989">1989</option>
+            <option value="1990">1990</option>
+            <option value="1991">1991</option>
+            <option value="1992">1992</option>
+            <option value="1993">1993</option>
+            <option value="1994">1994</option>
+            <option value="1995">1995</option>
+            <option value="1996">1996</option>
+            <option value="1997">1997</option>
+            <option value="1998">1998</option>
+            <option value="1999">1999</option>
+            <option value="2000">2000</option>
+            <option value="2001">2001</option>
+            <option value="2002">2002</option>
+            <option value="2003">2003</option>
+            <option value="2004">2004</option>
+            <option value="2005">2005</option>
+            <option value="2006">2006</option>
+            <option value="2007">2007</option>
+            <option value="2008">2008</option>
+            <option value="2009">2009</option>
+            <option value="2010">2010</option>
+            <option value="2011">2011</option>
+            <option value="2012">2012</option>
+            <option value="2013">2013</option>
+            <option value="2014">2014</option>
+            <option value="2015">2015</option>
+            <option value="2016">2016</option>
+          </select>
+        </div>  
+      </div>     
+    </div>
+<script type="text/javascript">
+
+  var Genre = "All";
+  var year = 0;
+  var vgsalesData = [];
+  var colorValue = d3.schemeCategory10[0];
+
+  var platforms = ['Wii', 'NES', 'GB', 'DS', 'X360', 'PS2', 'SNES', 'GBA', '3DS', 'PS4', 'PS3', 'N64', '2600', 'GC', 'GEN', 'NG', 'PC', 'PS', 'PSP', 'PSV', 'SAT', 'SCD', 'XB', 'XOne'];
+  var publishers = ['Microsoft Game Studios', 'Nintendo', 'Sony Computer Entertainment', 'Activision', 'Ubisoft', 'Take-Two Interactive', 'Square Enix', 'Konami Digital Entertainment', 'Sega'];
+  var publishersShort = ['Microsoft', 'Nintendo', 'Sony', 'Activision', 'Ubisoft', 'Take-Two Interactive', 'Square Enix', 'Konami', 'Sega'];
+
+  dsPieChart();
+
+  const csvData = d3.csv("vgsales.csv", function(d, i){
+    vgsalesData.push(d)
+  });
+
+function getYear(){
+  var select = document.getElementById('sales');
+  year = select.options[select.selectedIndex].value;
+
+  updateBarChart(Genre, colorValue);
+  updateBarChart2(Genre, colorValue);
+}
+
+function dsPieChart(){
+  var dataset = [
+              {Genre: 'All', numberOfGames: 600},
+              {Genre: 'Role-Playing', numberOfGames: 1488}, 
+              {Genre: 'Puzzle', numberOfGames: 582},
+              {Genre: 'Shooter', numberOfGames: 1310},
+              {Genre: 'Misc', numberOfGames: 1739},
+              {Genre: 'Fighting', numberOfGames: 848},
+              {Genre: 'Sports', numberOfGames: 2346},
+              {Genre: 'Platform', numberOfGames: 886},
+              {Genre: 'Strategy', numberOfGames: 681},
+              {Genre: 'Adventure', numberOfGames: 1286},
+              {Genre: 'Action', numberOfGames: 3316},
+              {Genre: 'Simulation', numberOfGames: 867},
+              {Genre: 'Racing', numberOfGames: 1249}];
+
+  var width = 500,
+    height = 500,
+    outerRadius = Math.min(width, height) / 2,
+    innerRadius = outerRadius * .999,   
+    innerRadiusFinal = outerRadius * .5,
+    innerRadiusFinal3 = outerRadius* .45,
+    color = d3.scaleOrdinal(d3.schemeCategory10);
+      
+  var vis = d3.select("#pieChart")
+    .append("svg")              
+    .data([dataset])                   
+    .attr("width", width)          
+    .attr("height", height)
+    .append("g")               
+    .attr("transform", "translate(" + outerRadius + "," + outerRadius + ")") 
+    ;
+          
+  var arc = d3.arc()
+    .outerRadius(outerRadius).innerRadius(innerRadius);
+   
+  var arcFinal = d3.arc().innerRadius(innerRadiusFinal).outerRadius(outerRadius);
+  var arcFinal3 = d3.arc().innerRadius(innerRadiusFinal3).outerRadius(outerRadius);
+
+  var pie = d3.pie().value(function(d) { return d.numberOfGames; });
+
+  var arcs = vis.selectAll("g.slice")
+    .data(pie)           
+    .enter()  
+    .append("g")             
+    .attr("class", "slice")  
+    .on("mouseover", mouseover)
+    .on("mouseout", mouseout)
+    .on("click", (event, d,i) => {
+      up(d,i);});
+            
+  arcs.append("path")
+    .attr("fill", function(d) { return color(d.index); } )
+    .attr("d", arc)
+    .append("title")
+    .text(function(d) { return d.data.Genre + ": " + d.data.numberOfGames + " games"; });      
+
+  d3.selectAll("g.slice").selectAll("path").transition()
+    .duration(750)
+    .delay(10)
+    .attr("d", arcFinal );
+  
+  arcs.filter(function(d) { return d.endAngle - d.startAngle > .2; })
+    .append("text")
+    .attr("dy", ".35em")
+    .attr("text-anchor", "middle")
+    .attr("transform", function(d) { return "translate(" + arcFinal.centroid(d) + ")rotate(" + angle(d) + ")"; })
+    .text(function(d) { 
+      return d.data.Genre; });
+     
+  function angle(d) {
+    var a = (d.startAngle + d.endAngle) * 90 / Math.PI - 90;
+    return a > 90 ? a - 180 : a;
+  }
+             
+  vis.append("text")
+    .attr("dy", ".35em")
+    .attr("text-anchor", "middle")
+    .attr("fill", "white")
+    .text("1981 - 2016")
+    .attr("class","pieChart_title");       
+
+
+    
+  function mouseover() {
+    d3.select(this).select("path").transition()
+    .duration(500)
+    .attr("d", arcFinal3);
+  }
+  
+  function mouseout() {
+    d3.select(this).select("path").transition()
+    .duration(500)
+    .attr("d", arcFinal);
+  }
+  
+  function up(d, i) {
+    colorValue = color(d.index);
+    Genre = d.data.Genre;
+    updateBarChart(d.data.Genre, color(d.index)); 
+    updateBarChart2(d.data.Genre, color(d.index));
+  }
+}
+
+// SORT DATA
+
+function dsPieSlice(Genre, year) {
+  var ds = [];
+  if(year == 0 && Genre == 'All'){
+    ds = vgsalesData;
+  }
+  else if(year == 0){
+    for (x in vgsalesData) {
+     if(vgsalesData[x].Genre==Genre){
+      ds.push(vgsalesData[x]);
+     } 
+    }
+  }
+  else if(Genre == 'All'){
+    for (x in vgsalesData) {
+     if(vgsalesData[x].Year == year){
+      ds.push(vgsalesData[x]);
+     } 
+    }
+  }
+  else{
+    for (x in vgsalesData) {
+     if(vgsalesData[x].Genre==Genre && vgsalesData[x].Year == year){
+      ds.push(vgsalesData[x]);
+     } 
+    }
+  }
+  
+  return ds;
+}
+
+function sortPlatformSales(data){
+  var ds = [];
+  for(platform in platforms){
+    var sum = 0;
+    for(x in data){
+      
+      if(platforms[platform] == data[x].Platform && data[x].Global_Sales != 'NA'){
+        sum += parseFloat(data[x].Global_Sales);
+        
+      }
+    }
+    ds.push(sum.toFixed(2));
+  }
+  return ds;
+}
+
+function sortPublisherSales(data){
+  var ds = [];
+  for(publisher in publishers){
+    var sum = 0;
+    for(x in data){
+      
+      if(publishers[publisher] == data[x].Publisher && data[x].Global_Sales != 'NA'){
+        sum += parseFloat(data[x].Global_Sales);
+        
+      }
+    }
+    ds.push(sum.toFixed(2));
+  }
+  return ds;
+}
+
+
+function dsBarChartBasics() {
+
+    var margin = {top: 100, right: 5, bottom: 50, left: 50},
+    width = 1200 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom,
+    colorBar = d3.scaleOrdinal(d3.schemeCategory10),
+    barPadding = 6
+    ;
+    
+    return {
+      margin : margin, 
+      width : width, 
+      height : height, 
+      colorBar : colorBar, 
+      barPadding : barPadding
+    }     
+    ;
+}
+//----------------------------
+
+
+function dsBarChart() {
+
+  var firstDatasetBarChart = dsPieSlice(Genre, year);  
+  var dataSales = sortPlatformSales(firstDatasetBarChart);         
+  var basics = dsBarChartBasics();
+
+
+
+  var margin = basics.margin,
+    width = basics.width,
+    height = basics.height,
+    colorBar = basics.colorBar,
+    barPadding = basics.barPadding
+    ;
+       
+  var xScale = d3.scaleLinear()
+    .domain([0, platforms.length])
+    .range([0, width])
+    ;
+            
+  var yScale = d3.scaleLinear()
+    .domain([0, Math.max(...dataSales)])
+    .range([height, 0])
+    ;
+  
+  var svg = d3.select("#barChart")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .attr("id","barChartPlot")
+    ;
+  
+  var plot = svg
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    ;
+              
+  plot.selectAll("rect")
+    .data(dataSales)
+    .enter()
+    .append("rect")
+    .attr("x", function(d, i) {
+        return xScale(i);
+    })
+    .attr("width", width / dataSales.length - barPadding)   
+    .attr("y", function(d) {
+        return yScale(d);
+    })  
+    .attr("height", function(d) {
+        return height-yScale(d);
+    })
+    .attr("fill", colorValue)
+    ;
+
+  
+  plot.selectAll("text")
+    .data(dataSales)
+    .enter()
+    .append("text")
+    .style("font-size", "13px")
+    .style("fill", "white")
+    .text(function(d) {
+        return d;
+    })
+    .attr("text-anchor", "middle")
+    .attr("x", function(d, i) {
+        return (i * (width / platforms.length)) + ((width / platforms.length - barPadding) / 2);
+    })
+    .attr("y", function(d) {
+        return yScale(d) - 5;
+    })
+    .attr("class", "yAxis")
+    ;
+  
+  var xLabels = svg
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + (margin.top + height)  + ")")
+    ;
+  
+  xLabels.selectAll("text.xAxis")
+    .data(platforms)
+    .enter()
+    .append("text")
+    .style("fill", "white")
+    .text(function(d) { return d;})
+    .attr("text-anchor", "middle")
+    .attr("x", function(d, i) {
+      return (i * (width / platforms.length)) + ((width / platforms.length - barPadding) / 2);
+    })
+    .attr("y", 15)
+    .attr("class", "xAxis")
+    ;     
+  
+  svg.append("text")
+    .attr("x", (width + margin.left + margin.right)/2)
+    .attr("y", 20)
+    .attr("class","barChart_Title")        
+    .attr("text-anchor", "middle")
+    .style("fill", "white")
+    .text(Genre + " Genre -- Global Sales Breakdown (in millions $)")
+    ;
+
+}
+
+function dsBarChart2() {
+
+var firstDatasetBarChart = dsPieSlice(Genre, year);  
+var dataSales = sortPublisherSales(firstDatasetBarChart);         
+var basics = dsBarChartBasics();
+
+var margin = basics.margin,
+  width = basics.width,
+  height = basics.height,
+  colorBar = basics.colorBar,
+  barPadding = basics.barPadding
+  ;
+        
+var xScale = d3.scaleLinear()
+  .domain([0, publishers.length])
+  .range([0, width])
+  ;
+          
+var yScale = d3.scaleLinear()
+  .domain([0, Math.max(...dataSales)])
+  .range([height, 0])
+  ;
+
+var svg = d3.select("#barChart2")
+  .append("svg")
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom)
+  .attr("id","barChartPlot2")
+  ;
+
+var plot = svg
+  .append("g")
+  .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+  ;
+            
+plot.selectAll("rect")
+  .data(dataSales)
+  .enter()
+  .append("rect")
+  .attr("x", function(d, i) {
+      return xScale(i);
+  })
+  .attr("width", width / dataSales.length - barPadding)   
+  .attr("y", function(d) {
+      return yScale(d);
+  })  
+  .attr("height", function(d) {
+      return height-yScale(d);
+  })
+  .attr("fill", colorValue)
+  ;
+
+
+plot.selectAll("text")
+  .data(dataSales)
+  .enter()
+  .append("text")
+  .style("font-size", "13px")
+  .style("fill", "white")
+  .text(function(d) {
+      return d;
+  })
+  .attr("text-anchor", "middle")
+  .attr("x", function(d, i) {
+      return (i * (width / publishers.length)) + ((width / publishers.length - barPadding) / 2);
+  })
+  .attr("y", function(d) {
+      return yScale(d) - 5;
+  })
+  .attr("class", "yAxis")
+  ;
+
+var xLabels = svg
+  .append("g")
+  .attr("transform", "translate(" + margin.left + "," + (margin.top + height)  + ")")
+  ;
+
+xLabels.selectAll("text.xAxis")
+  .data(publishersShort)
+  .enter()
+  .append("text")
+  .style("fill", "white")
+  .text(function(d) { return d;})
+  .attr("text-anchor", "middle")
+  .attr("x", function(d, i) {
+    return (i * (width / publishers.length)) + ((width / publishers.length - barPadding) / 2);
+  })
+  .attr("y", 25)
+  .attr("class", "xAxis")
+  ;     
+
+}
+
+setTimeout(function() {
+  dsBarChart();
+  dsBarChart2();
+}, 500);
+
+
+function updateBarChart(Genre, colorChosen) {
+  
+  var currentDatasetBarChart = dsPieSlice(Genre, year);
+  var dataSales = sortPlatformSales(currentDatasetBarChart); 
+  var basics = dsBarChartBasics();
+
+  var margin = basics.margin,
+    width = basics.width,
+    height = basics.height,
+    colorBar = basics.colorBar,
+    barPadding = basics.barPadding
+    ;
+  
+  var xScale = d3.scaleLinear()
+    .domain([0, platforms.length])
+    .range([0, width])
+    ;
+            
+  var yScale = d3.scaleLinear()
+    .domain([0, Math.max(...dataSales)])
+    .range([height, 0])
+    ;
+        
+  var svg = d3.select("#barChart svg");
+        
+  var plot = d3.select("#barChartPlot")
+    .datum(dataSales)
+    ;
+  
+      plot.selectAll("rect")
+        .data(dataSales)
+        .transition()
+      .duration(750)
+      .attr("x", function(d, i) {
+          return xScale(i);
+      })
+       .attr("width", width / dataSales.length - barPadding)   
+      .attr("y", function(d) {
+          return yScale(d);
+      })  
+      .attr("height", function(d) {
+          return height-yScale(d);
+      })
+      .attr("fill", colorChosen)
+      ;
+    
+    plot.selectAll("text.yAxis")
+      .data(dataSales)
+      .transition()
+      .duration(750)
+       .attr("text-anchor", "middle")
+       .attr("x", function(d, i) {
+          return (i * (width / dataSales.length)) + ((width / dataSales.length - barPadding) / 2);
+       })
+       .attr("y", function(d) {
+          return yScale(d) - 5;
+       })
+       .text(function(d) {
+        return d;
+       })
+       .attr("class", "yAxis")          
+    ;
+    
+
+    svg.selectAll("text.barChart_Title")
+      .attr("x", (width + margin.left + margin.right)/2)
+      .attr("y", 20)
+      .attr("class","barChart_Title")        
+      .attr("text-anchor", "middle")
+      .style("fill", "white")
+      .text(Genre + " Genre -- Global Sales Breakdown (in millions $)")
+    ;
+}
+
+function updateBarChart2(Genre, colorChosen) {
+  
+  var currentDatasetBarChart = dsPieSlice(Genre, year);
+  var dataSales = sortPublisherSales(currentDatasetBarChart); 
+  var basics = dsBarChartBasics();
+
+  var margin = basics.margin,
+    width = basics.width,
+    height = basics.height,
+    colorBar = basics.colorBar,
+    barPadding = basics.barPadding
+    ;
+  
+  var xScale = d3.scaleLinear()
+    .domain([0, publishers.length])
+    .range([0, width])
+    ;
+      
+  var yScale = d3.scaleLinear()
+    .domain([0, Math.max(...dataSales)])
+    .range([height, 0])
+    ;
+        
+  var svg = d3.select("#barChart svg");
+        
+  var plot = d3.select("#barChartPlot2")
+    .datum(dataSales)
+    ;
+  
+      plot.selectAll("rect")
+        .data(dataSales)
+        .transition()
+      .duration(750)
+      .attr("x", function(d, i) {
+          return xScale(i);
+      })
+       .attr("width", width / dataSales.length - barPadding)   
+      .attr("y", function(d) {
+          return yScale(d);
+      })  
+      .attr("height", function(d) {
+          return height-yScale(d);
+      })
+      .attr("fill", colorChosen)
+      ;
+    
+    plot.selectAll("text.yAxis")
+      .data(dataSales)
+      .transition()
+      .duration(750)
+       .attr("text-anchor", "middle")
+       .attr("x", function(d, i) {
+          return (i * (width / dataSales.length)) + ((width / dataSales.length - barPadding) / 2);
+       })
+       .attr("y", function(d) {
+          return yScale(d) - 5;
+       })
+       .text(function(d) {
+        return d;
+       })
+       .attr("class", "yAxis")          
+    ;
+    
+}
+
+
+    </script>
+  </body>
+</html>
